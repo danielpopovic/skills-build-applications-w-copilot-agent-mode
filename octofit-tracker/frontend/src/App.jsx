@@ -1,25 +1,60 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router-dom";
+import Activities from "./components/Activities.jsx";
+import Leaderboard from "./components/Leaderboard.jsx";
+import Teams from "./components/Teams.jsx";
+import Users from "./components/Users.jsx";
+import Workouts from "./components/Workouts.jsx";
 
 function Home() {
-  return <p className="text-secondary">Track workouts, teams, and progress in one place.</p>;
+  return (
+    <div>
+      <p className="lead">Track workouts, teams, and progress in one place.</p>
+      <p className="text-secondary">
+        Use the navigation above to explore users, teams, activities, the leaderboard, and workouts.
+      </p>
+    </div>
+  );
 }
 
-function Leaderboard() {
-  return <p className="text-secondary">Leaderboard feature scaffolding is ready.</p>;
-}
+const navLinks = [
+  { to: "/", label: "Home", end: true },
+  { to: "/users", label: "Users" },
+  { to: "/teams", label: "Teams" },
+  { to: "/activities", label: "Activities" },
+  { to: "/leaderboard", label: "Leaderboard" },
+  { to: "/workouts", label: "Workouts" },
+];
 
 export default function App() {
   return (
-    <main className="container py-4">
-      <h1 className="display-6 fw-bold mb-3">OctoFit Tracker</h1>
-      <nav className="d-flex gap-3 mb-4">
-        <Link to="/" className="link-primary">Home</Link>
-        <Link to="/leaderboard" className="link-primary">Leaderboard</Link>
+    <div>
+      <nav className="navbar navbar-expand navbar-dark bg-dark px-3">
+        <span className="navbar-brand fw-bold">OctoFit Tracker</span>
+        <div className="navbar-nav gap-1">
+          {navLinks.map(({ to, label, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active fw-semibold" : "")
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </div>
       </nav>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-      </Routes>
-    </main>
+      <main className="container py-4">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/activities" element={<Activities />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/workouts" element={<Workouts />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
