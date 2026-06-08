@@ -3,9 +3,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import mongoose from "mongoose";
 import type { Request, Response } from "express";
 import { Activity } from "./models/Activity";
+import { connectDatabase } from "./config/database";
 import { Leaderboard } from "./models/Leaderboard";
 import { Team } from "./models/Team";
 import { User } from "./models/User";
@@ -15,7 +15,6 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT) || 8000;
-const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/octofit_db";
 const codespaceName = process.env.CODESPACE_NAME;
 const baseUrl = codespaceName
   ? `https://${codespaceName}-8000.app.github.dev`
@@ -81,7 +80,7 @@ app.get("/api/workouts/", async (_req: Request, res: Response) => {
 
 async function startServer() {
   try {
-    await mongoose.connect(mongoUri);
+    await connectDatabase();
     app.listen(port, () => {
       console.log(`OctoFit backend listening on port ${port}`);
     });
