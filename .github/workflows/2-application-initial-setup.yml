@@ -14,6 +14,7 @@ permissions:
   issues: write
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   STEP_3_FILE: ".github/steps/3-django-project-setup.md"
 
 jobs:
