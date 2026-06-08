@@ -83,6 +83,10 @@ async function startServer() {
     await connectDatabase();
     app.listen(port, () => {
       console.log(`OctoFit backend listening on port ${port}`);
+      console.log(`API base URL: ${baseUrl}`);
+      console.log(`Verify endpoints:`);
+      console.log(`  curl ${baseUrl}/api/users/`);
+      console.log(`  curl ${baseUrl}/api/activities/`);
     });
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
