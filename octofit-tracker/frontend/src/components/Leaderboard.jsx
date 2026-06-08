@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
 
-// API base URL using VITE_CODESPACE_NAME (define in .env.local)
-const codespaceName = import.meta.env.VITE_CODESPACE_NAME;
-const baseUrl = codespaceName
-  ? `https://${codespaceName}-8000.app.github.dev`
-  : "http://localhost:8000";
+// API base URL: uses VITE_CODESPACE_NAME env var (define in .env.local),
+// or auto-detects the Codespace name from the current hostname,
+// or falls back to localhost for local development.
+const viteCodespaceName = import.meta.env.VITE_CODESPACE_NAME;
+const hostname = window.location.hostname;
+const autoCodespaceName =
+  !viteCodespaceName && hostname.endsWith(".app.github.dev")
+    ? hostname.replace(".app.github.dev", "").replace(/-\d+$/, "")
+    : null;
+const codespaceName = viteCodespaceName || autoCodespaceName;
+const apiUrl = codespaceName
+  ? `https://${codespaceName}-8000.app.github.dev/api/leaderboard/`
+  : "http://localhost:8000/api/leaderboard/";
+const fallbackApiUrl = hostname.endsWith(".app.github.dev")
+  ? `https://${hostname.replace(/-\d+\.app\.github\.dev$/, "-8000.app.github.dev")}/api/leaderboard/`
+  : "http://localhost:8000/api/leaderboard/";
 
 export default function Leaderboard() {
   const [entries, setEntries] = useState([]);
@@ -12,17 +23,29 @@ export default function Leaderboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${baseUrl}/api/leaderboard/`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((json) => {
+    const loadLeaderboard = async () => {
+      try {
+        const primaryRes = await fetch(apiUrl);
+        if (!primaryRes.ok) throw new Error(`HTTP ${primaryRes.status}`);
+        const json = await primaryRes.json();
         const items = Array.isArray(json) ? json : json.data ?? [];
         setEntries(items);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      } catch {
+        try {
+          const fallbackRes = await fetch(fallbackApiUrl);
+          if (!fallbackRes.ok) throw new Error(`HTTP ${fallbackRes.status}`);
+          const json = await fallbackRes.json();
+          const items = Array.isArray(json) ? json : json.data ?? [];
+          setEntries(items);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to fetch");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadLeaderboard();
   }, []);
 
   if (loading) return <p className="text-secondary">Loading leaderboard…</p>;

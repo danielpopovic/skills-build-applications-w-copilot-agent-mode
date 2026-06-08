@@ -32,7 +32,13 @@ app.get("/api/users/", async (_req: Request, res: Response) => {
     const users = await User.find().populate("team", "name city").lean();
     res.json({ count: users.length, data: users, resource: "users" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch users" });
+    console.error("Users populate query failed, falling back:", error);
+    try {
+      const users = await User.find().lean();
+      res.json({ count: users.length, data: users, resource: "users" });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
   }
 });
 
@@ -41,7 +47,13 @@ app.get("/api/teams/", async (_req: Request, res: Response) => {
     const teams = await Team.find().populate("members", "name email").lean();
     res.json({ count: teams.length, data: teams, resource: "teams" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch teams" });
+    console.error("Teams populate query failed, falling back:", error);
+    try {
+      const teams = await Team.find().lean();
+      res.json({ count: teams.length, data: teams, resource: "teams" });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch teams" });
+    }
   }
 });
 
@@ -53,7 +65,13 @@ app.get("/api/activities/", async (_req: Request, res: Response) => {
       .lean();
     res.json({ count: activities.length, data: activities, resource: "activities" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch activities" });
+    console.error("Activities populate query failed, falling back:", error);
+    try {
+      const activities = await Activity.find().sort({ date: -1 }).lean();
+      res.json({ count: activities.length, data: activities, resource: "activities" });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch activities" });
+    }
   }
 });
 
@@ -65,7 +83,13 @@ app.get("/api/leaderboard/", async (_req: Request, res: Response) => {
       .lean();
     res.json({ count: leaderboard.length, data: leaderboard, resource: "leaderboard" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch leaderboard" });
+    console.error("Leaderboard populate query failed, falling back:", error);
+    try {
+      const leaderboard = await Leaderboard.find().sort({ rank: 1 }).lean();
+      res.json({ count: leaderboard.length, data: leaderboard, resource: "leaderboard" });
+    } catch {
+      res.status(500).json({ error: "Failed to fetch leaderboard" });
+    }
   }
 });
 
